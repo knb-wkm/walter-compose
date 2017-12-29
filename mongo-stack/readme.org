@@ -1,0 +1,28 @@
+#+STARTUP: indent
+
+* add-label
+
+- docker01
+#+begin_src sh
+$ sudo docker node update --label-add mongo.replica.rs1=1 docker1
+$ sudo docker node update --label-add mongo.replica.rs2=1 docker1
+#+end_src
+
+- docker02
+#+begin_src sh
+$ sudo docker node update --label-add mongo.replica.rs1=2 docker2
+$ sudo docker node update --label-add mongo.replica.rs2=2 docker2
+#+end_src
+
+- docker03
+#+begin_src sh
+$ sudo docker node update --label-add mongo.replica.rs1=3 docker3
+$ sudo docker node update --label-add mongo.replica.rs2=3 docker3
+#+end_src
+
+* init replica sets
+
+#+begin_src sh
+$ sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=mongos_mongocfg_rs1_1) mongo --port 27017 /rs_inits/rs1-init.js
+$ sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=mongos_mongosrd_rs2_1) mongo --port 27017 /rs_inits/rs2-init.js
+#+end_src

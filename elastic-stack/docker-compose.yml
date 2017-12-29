@@ -1,0 +1,20 @@
+version: "3"
+services:
+  elstic_search:
+    image: elasticsearch:5.6
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx256m"
+    deploy:
+      replicas: 3
+      placement:
+        constraints:
+          - node.role == manager
+
+volumes:
+  elastic_search:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/dockerdata/elastic_01
+

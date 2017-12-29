@@ -1,0 +1,81 @@
+version: "3"
+services:
+  mongocfg_rs1_1:
+    image: mongo:3.4.10
+    command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
+    volumes:
+      - mongocfg_rs1_1:/data/db
+      - ./rs_inits:/rs_inits
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.mongo.replica.rs1 == 1
+
+  mongocfg_rs1_2:
+    image: mongo:3.4.10
+    command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
+    volumes:
+      - mongocfg_rs1_2:/data/db
+      - ./rs_inits:/rs_inits
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.mongo.replica.rs1 == 2
+
+  mongocfg_rs1_3:
+    image: mongo:3.4.10
+    command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
+    volumes:
+      - mongocfg_rs1_3:/data/db
+      - ./rs_inits:/rs_inits
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.mongo.replica.rs1 == 3
+
+  mongosrd_rs2_1:
+    image: mongo:3.4.10    
+    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
+    volumes:
+      - mongosrd_rs2_1:/data/db
+      - ./rs_inits:/rs_inits
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.mongo.replica.rs2 == 1
+
+  mongosrd_rs2_2:
+    image: mongo:3.4.10
+    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
+    volumes:
+      - mongosrd_rs2_2:/data/db
+      - ./rs_inits:/rs_inits
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.mongo.replica.rs2 == 2
+
+  mongosrd_rs2_3:
+    image: mongo:3.4.10
+    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
+    volumes:
+      - mongosrd_rs2_3:/data/db
+      - ./rs_inits:/rs_inits
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.mongo.replica.rs2 == 3
+
+volumes:
+  mongocfg_rs1_1:
+  mongocfg_rs1_2:
+  mongocfg_rs1_3:
+  mongosrd_rs2_1:
+  mongosrd_rs2_2:
+  mongosrd_rs2_3:

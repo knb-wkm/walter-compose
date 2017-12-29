@@ -1,0 +1,72 @@
+version: "3"
+services:
+  swift_01:
+    image: morrisjobke/docker-swift-onlyone
+    volumes:
+      - swift_01:/srv
+    ports:
+      - 8080:8080
+      - 6010:6010
+      - 6011:6011
+      - 6012:6012
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.hostname == docker1
+
+  swift_02:
+    image: morrisjobke/docker-swift-onlyone
+    volumes:
+      - swift_02:/srv
+    ports:
+      - 8090:8080
+      - 6020:6010
+      - 6021:6011
+      - 6022:6012
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.hostname == docker2
+
+  swift_03:
+    image: morrisjobke/docker-swift-onlyone
+    volumes:
+      - swift_03:/srv
+    ports:
+      - 8100:8080
+      - 6030:6010
+      - 6031:6011
+      - 6032:6012
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.hostname == docker3
+
+volumes:
+  swift_01:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/dockerdata/swift_01
+
+  swift_02:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/dockerdata/swift_02
+
+  swift_03:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/dockerdata/swift_03
+
+networks:
+  default:
+    driver: overlay
