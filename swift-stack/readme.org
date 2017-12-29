@@ -1,0 +1,74 @@
+#+STARTUP: indent
+
+* swarm nodeにラベルを追加
+
+- docker01
+#+begin_src sh
+$ sudo docker node update --label-add swift.node=1 docker1
+$ sudo docker node update --label-add swift.node=2 docker2
+$ sudo docker node update --label-add swift.node=3 docker3
+#+end_src
+
+* ring作成
+
+** 事前準備として各ノードにvolume作成
+
+- docker01
+#+begin_src sh
+$ sudo docker volume create --name swift_swift_01
+#+end_src
+
+- docker02
+#+begin_src sh
+$ sudo docker volume create --name swift_swift_02
+#+end_src
+
+- docker03
+#+begin_src sh
+$ sudo docker volume create --name swift_swift_03
+#+end_src
+
+** ring作成
+
+- docker01
+#+begin_src sh
+$ sudo docker run --rm -it \
+  -v swift_swift_01:/srv \
+  -v /root/composes/swift-stack/ring-inits:/ring-inits \
+  morrisjobke/docker-swift-onlyone /bin/bash
+$ cd /ring-inits
+$ ./ring_create.sh
+$ exit
+#+end_src
+
+** ring配布
+
+- docker02
+#+begin_src sh
+$ scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_swift_01/_data/* /var/lib/docker/volumes/swift_swift_02/_data/
+#+end_src
+
+- docker03
+#+begin_src sh
+$ scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_swift_01/_data/* /var/lib/docker/volumes/swift_swift_03/_data/
+#+end_src
+
+* stack deploy
+#+begin_src sh
+$ sudo docker stack deploy swift --compose-file docker-compose.yml
+#+end_src
+
+* 初期コンテナ作成
+#+begin_src sh
+swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing post walter
+#+end_src
+
+* 動作確認
+#+begin_src sh
+swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing stat walter
+cd /var/log
+swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing upload walter *log
+swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing list walter
+swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing stat walter
+#+end_src
+
