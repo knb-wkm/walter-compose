@@ -46,5 +46,5 @@ $ sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=mongo
 
 - docker02
 #+begin_src sh
-$ sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=mongos_mongos_2) mongo --port 27017 /rs_inits/mongos02-init.js
+$ sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=mongo_mongos_2) mongo --port 27017 /rs_inits/mongos02-init.js
 #+end_src
