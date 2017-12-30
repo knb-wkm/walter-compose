@@ -20,7 +20,7 @@ cluster.name: walter
 #
 # Use a descriptive name for the node:
 #
-node.name: ${HOSTNAME}
+node.name: ${NODE_NAME}
 #
 # Add custom attributes to the node:
 #
@@ -65,7 +65,7 @@ path.logs: /usr/share/elasticserch/logs
 # Pass an initial list of hosts to perform discovery when new node is started:
 # The default list of hosts is ["127.0.0.1", "[::1]"]
 #
-discovery.zen.ping.unicast.hosts: ["elastic_elastic_01", "elastic_elastic_02", "elastic_elastic_03"]
+discovery.zen.ping.unicast.hosts: ["elastic_01", "elastic_02", "elastic_03"]
 #
 # Prevent the "split brain" by configuring the majority of nodes (total number of master-eligible nodes / 2 + 1):
 #
