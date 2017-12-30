@@ -30,11 +30,11 @@ node.name: ${NODE_NAME}
 #
 # Path to directory where to store the data (separate multiple locations by comma):
 #
-path.data: /usr/share/elasticserch/data
+path.data: /usr/share/elasticsearch/data
 #
 # Path to log files:
 #
-path.logs: /usr/share/elasticserch/logs
+path.logs: /usr/share/elasticsearch/logs
 #
 # ----------------------------------- Memory -----------------------------------
 #

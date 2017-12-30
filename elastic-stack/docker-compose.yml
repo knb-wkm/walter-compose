@@ -3,9 +3,10 @@ services:
   elastic_01:
     image: elasticsearch:5.6
     environment:
+      _JAVA_OPTIONS: "-Xms128m -Xmx128m"
       NODE_NAME: "elastic_01"
     volumes:
-      - ./conf:/usr/share/elasticsearch/conf
+      - ./conf:/usr/share/elasticsearch/config
     deploy:
       replicas: 1
       placement:
@@ -15,9 +16,10 @@ services:
   elastic_02:
     image: elasticsearch:5.6
     environment:
+      _JAVA_OPTIONS: "-Xms128m -Xmx128m"
       NODE_NAME: "elastic_02"
     volumes:
-      - ./conf:/usr/share/elasticsearch/conf
+      - ./conf:/usr/share/elasticsearch/config
     deploy:
       replicas: 1
       placement:
@@ -27,9 +29,10 @@ services:
   elastic_03:
     image: elasticsearch:5.6
     environment:
+      _JAVA_OPTIONS: "-Xms128m -Xmx128m"
       NODE_NAME: "elastic_03"
     volumes:
-      - ./conf:/usr/share/elasticsearch/conf
+      - ./conf:/usr/share/elasticsearch/config
     deploy:
       replicas: 1
       placement:
