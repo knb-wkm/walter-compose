@@ -1,20 +1,37 @@
 version: "3"
 services:
-  elstic_search:
+  elstic_01:
     image: elasticsearch:5.6
     environment:
-      _JAVA_OPTIONS: "-Xms256m -Xmx256m"
+      _JAVA_OPTIONS: "-Xms128m -Xmx128m"
+    volumes:
+      - ./conf:/etc/elasticsearch
     deploy:
-      replicas: 3
+      replicas: 1
       placement:
         constraints:
-          - node.role == manager
+          - node.labels.elastic.node == 1
 
-volumes:
-  elastic_search:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /var/dockerdata/elastic_01
+  elstic_02:
+    image: elasticsearch:5.6
+    environment:
+      _JAVA_OPTIONS: "-Xms128m -Xmx128m"
+    volumes:
+      - ./conf:/etc/elasticsearch
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.elastic.node == 2
 
+  elstic_03:
+    image: elasticsearch:5.6
+    environment:
+      _JAVA_OPTIONS: "-Xms128m -Xmx128m"
+    volumes:
+      - ./conf:/etc/elasticsearch
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.elastic.node == 3
