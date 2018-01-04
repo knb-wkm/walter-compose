@@ -75,8 +75,6 @@ services:
   mongos_1:
     image: mongo:3.4.10
     command: mongos --configdb rs1/mongocfg_rs1_1,mongocfg_rs1_2,mongocfg_rs1_3:27017 --port 27017
-    ports:
-      - 27017:27017
     volumes:
       - mongos_1:/data/db
       - ./mongo/rs_inits:/rs_inits
@@ -93,8 +91,6 @@ services:
   mongos_2:
     image: mongo:3.4.10
     command: mongos --configdb rs1/mongocfg_rs1_1,mongocfg_rs1_2,mongocfg_rs1_3:27017 --port 27017
-    ports:
-      - 27018:27017
     volumes:
       - mongos_2:/data/db
       - ./mongo/rs_inits:/rs_inits
@@ -113,7 +109,6 @@ services:
     volumes:
       - swift_01:/srv
     ports:
-      - 8080:8080
       - 6010:6010
       - 6011:6011
       - 6012:6012
@@ -128,7 +123,6 @@ services:
     volumes:
       - swift_02:/srv
     ports:
-      - 8081:8080
       - 6020:6010
       - 6021:6011
       - 6022:6012
@@ -143,7 +137,6 @@ services:
     volumes:
       - swift_03:/srv
     ports:
-      - 8082:8080
       - 6030:6010
       - 6031:6011
       - 6032:6012
