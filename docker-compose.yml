@@ -194,7 +194,7 @@ services:
     image: walter-node:6.12
     command: bash -c "cd /webapp/walter-02/server && npm start"
     volumes:
-      - ./node/conf:/webapp/walter-02/server/configs
+      - nodejs_01:/webapp
     ports:
       - 3000:3333
     depends_on:
@@ -211,7 +211,7 @@ services:
     image: walter-node:6.12
     command: bash -c "cd /webapp/walter-02/server && npm start"
     volumes:
-      - ./node/conf:/webapp/walter-02/server/configs
+      - nodejs_02:/webapp
     ports:
       - 3001:3333
     depends_on:

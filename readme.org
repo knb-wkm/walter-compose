@@ -1,5 +1,107 @@
 #+STARTUP: indent
 
+* docker導入
+centos7.x前提
+
+- update
+#+begin_src sh
+$ sudo yum -y update
+#+end_src
+
+- packages
+#+begin_src sh
+$ sudo yum install -y yum-utils device-mapper-persistent-data lvm2 libtool-ltdl.x86_64 wget libcgroup policycoreutils-python container-selinux libseccomp
+#+end_src
+
+- docker
+#+begin_src sh
+$ wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-17.06.2.ce-1.el7.centos.x86_64.rpm
+$ wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-selinux-17.03.2.ce-1.el7.centos.noarch.rpm
+$ sudo rpm -ivh *
+$ sudo systemctl enable docker
+#+end_src
+
+- hostname
+
+#+begin_src sh
+$ sudo hostnamectl set-hostname docker2
+#+end_src
+
+- selinux
+#+begin_src sh
+$ sudo vi /etc/selinux/config # Enforcing -> Disabled
+#+end_src
+
+- reboot
+
+#+begin_src sh
+$ sudo reboot
+#+end_src
+
+- firewalld
+#+begin_src sh
+$ sudo systemctl stop firewalld
+$ sudo systemctl disable firewalld
+$ sudo iptables -nL  # 確認
+#+end_src
+
+* swarm開始
+
+#+begin_src sh
+root@docker1# docker swarm init --advertise-addr=192.168.56.10 --listen-addr=0.0.0.0:2377
+#+end_src
+
+- docker infoで確認
+#+begin_src sh
+root@docker1# docker info
+Swarm: active
+ NodeID: 94vhdgljahay6gwn283iwa5ij
+ Is Manager: true
+ ClusterID: 86e5r0p1686gsccg9c57czi0m
+ Managers: 1
+ Nodes: 1
+ Orchestration:
+  Task History Retention Limit: 5
+#+end_src
+
+- docker nodeで確認
+#+begin_src sh
+root@docker1# docker node ls
+ID                            HOSTNAME            STATUS              AVAILABILITY        MANAGER STATUS
+94vhdgljahay6gwn283iwa5ij *   docker1             Ready               Active              Leader
+#+end_src
+
+* ノードに参加
+今回、workerは不要なのでmanagerとしてノードに参加する
+
+- managerがtokenを発行
+  join-token workerとするとworker用のトークンを発行する
+
+#+begin_src sh
+root@docker1# docker swarm join-token manager
+
+To add a manager to this swarm, run the following command:
+
+    docker swarm join \
+    --token SWMTKN-1-04zm3gnjxxbayowef38oqvh5de835p7wrag5as6zp8if96j9e7-509t3pyfy4ajfd5go8qk5bprw \
+    192.168.56.10:2377
+#+end_src
+
+- 他ホストが生成したノードに参加する
+#+begin_src sh
+root@docker2# docker swarm join --token SWMTKN-1-04zm3gnjxxbayowef38oqvh5de835p7wrag5as6zp8if96j9e7-509t3pyfy4ajfd5go8qk5bprw 192.168.56.10:2377
+root@docker3# docker swarm join --token SWMTKN-1-04zm3gnjxxbayowef38oqvh5de835p7wrag5as6zp8if96j9e7-509t3pyfy4ajfd5go8qk5bprw 192.168.56.10:2377
+#+end_src
+
+- 確認
+#+begin_src sh
+root@docker1# docker node ls
+ID                           HOSTNAME  STATUS  AVAILABILITY  MANAGER STATUS
+9r84kblc6jr4wc6g1rw52lt0t    docker3   Ready   Active        Reachable
+jgechqirif3mlpscbuh0scasr    docker2   Ready   Active        Reachable
+sra9s7eo2plu17m8awytb6teb *  docker1   Ready   Active        Leader
+#+end_src
+
 * sysctl.conf
 - elastic-searchコンテナ起動時に発生するエラー対策
 
@@ -59,27 +161,6 @@ sudo docker node update --label-add nodejs.node=1 docker1
 sudo docker node update --label-add nodejs.node=2 docker2
 #+end_src
 
-* mongo shell
-初期データ投入のためdocker01にインストール
-
-- repos登録
-#+begin_src sh
-sudo touch /etc/yum.repos.d/mongodb.repo
-cat << EOF > /etc/yum.repos.d/mongodb.repo
-[mongodb]
-name=MongoDB Repository
-baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/
-gpgcheck=0
-enabled=1
-EOF
-#+end_src
-
-- install
-
-#+begin_src sh
-sudo yum install mongodb-org-shell
-#+end_src
-
 * stack deploy
 #+begin_src sh
 cd composes
@@ -114,7 +195,7 @@ sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_
 
 ** 初期データ投入
 
-- mongos_1
+- docker01
 #+begin_src sh
 sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
   mongo localhost/walter /webapp/server/jobs/loadTestData.js
@@ -160,6 +241,12 @@ scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_tmp/_data/* /var/lib/doc
 #+begin_src sh
 docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
   swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing post walter
+#+end_src
+
+* stack再起動
+#+begin_src sh
+docker stack rm walter
+docker stack deploy walter --compose-file docker-compose.yml
 #+end_src
 
 * 動作確認
