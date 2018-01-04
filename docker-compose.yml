@@ -198,8 +198,11 @@ services:
 
   nodejs_01:
     image: walter-node:6.12
+    command: bash -c "cd /webapp/walter-02/server && npm start"
     volumes:
       - ./node/conf:/webapp/walter-02/server/configs
+    ports:
+      - 3000:3333
     depends_on:
       - mongos_1
       - swift_01
@@ -212,8 +215,11 @@ services:
 
   nodejs_02:
     image: walter-node:6.12
+    command: bash -c "cd /webapp/walter-02/server && npm start"
     volumes:
       - ./node/conf:/webapp/walter-02/server/configs
+    ports:
+      - 3001:3333
     depends_on:
       - mongos_2
       - swift_02
