@@ -53,6 +53,12 @@ sudo docker node update --label-add elastic.node=2 docker2
 sudo docker node update --label-add elastic.node=3 docker3
 #+end_src
 
+** nodejs
+#+begin_src sh
+sudo docker node update --label-add nodejs.node=1 docker1
+sudo docker node update --label-add nodejs.node=2 docker2
+#+end_src
+
 * stack deploy
 #+begin_src sh
 cd composes
@@ -116,21 +122,30 @@ scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_tmp/_data/* /var/lib/doc
 
 
 ** 初期コンテナ作成
+- docker01
 #+begin_src sh
-docker exec -it walter_swift_xx \
+docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
   swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing post walter
 #+end_src
 
 * 動作確認
 ** mongo
 #+begin_src sh
-docker exec -it mongo_cfg_xxx mongo --port 27017
-docker exec -it mongo_srd_xxx mongo --port 27017
-docker exec -it mongos_xx mongo --port 27017
+docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongocfg_rs1_1) mongo --port 27017
+docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongosrd_rs2_1) mongo --port 27017
+docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) mongo --port 27017
 #+end_src
 
 ** swift
 #+begin_src sh
-docker exec -it walter_swift_xx swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing stat walter
+docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
+  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing stat walter
 #+end_src
+
+** elastic
+#+begin_src sh
+docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_elastic_01) \
+  curl -X get http://localhost:9200/_cluster/state
+#+end_src
+
 
