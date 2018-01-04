@@ -78,6 +78,7 @@ services:
     volumes:
       - mongos_1:/data/db
       - ./mongo/rs_inits:/rs_inits
+      - ./walter-02:/webapp
     depends_on:
       - mongocfg_rs1_1
       - mongocfg_rs1_2
