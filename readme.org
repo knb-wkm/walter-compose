@@ -1,0 +1,136 @@
+#+STARTUP: indent
+
+* sysctl.conf
+- elastic-searchコンテナ起動時に発生するエラー対策
+
+- docker01, 02, 03
+#+begin_src sh
+sudo docker logs elastic_xx
+ERROR: [2] bootstrap checks failed
+[1]: memory locking requested for elasticsearch process but memory is not locked
+[2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+
+sudo echo "vm.max_map_count = 262144" >> /etc/sysctl.conf
+#+end_src
+
+* swarm nodeラベルを追加
+replica setの各ノードがどのmanagerで実行されるのかをdocker-composeにて指定するので
+ラベルを設定
+
+** mongo
+- docker01
+#+begin_src sh
+sudo docker node update --label-add mongo.replica.rs1=1 docker1
+sudo docker node update --label-add mongo.replica.rs2=1 docker1
+sudo docker node update --label-add mongo.mongos=1 docker1
+#+end_src
+
+- docker02
+#+begin_src sh
+sudo docker node update --label-add mongo.replica.rs1=2 docker2
+sudo docker node update --label-add mongo.replica.rs2=2 docker2
+sudo docker node update --label-add mongo.mongos=2 docker2
+#+end_src
+
+- docker03
+#+begin_src sh
+sudo docker node update --label-add mongo.replica.rs1=3 docker3
+sudo docker node update --label-add mongo.replica.rs2=3 docker3
+#+end_src
+
+** swift
+- docker01
+#+begin_src sh
+sudo docker node update --label-add swift.node=1 docker1
+sudo docker node update --label-add swift.node=2 docker2
+sudo docker node update --label-add swift.node=3 docker3
+#+end_src
+
+** elastic
+#+begin_src sh
+sudo docker node update --label-add elastic.node=1 docker1
+sudo docker node update --label-add elastic.node=2 docker2
+sudo docker node update --label-add elastic.node=3 docker3
+#+end_src
+
+* stack deploy
+#+begin_src sh
+cd composes
+sudo docker stack deploy walter --compose-file docker-compose.yml
+#+end_src
+
+* mongo初期設定
+** rs1, rs2の初期化
+- docker01
+#+begin_src sh
+sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongocfg_rs1_1) mongo --port 27017 /rs_inits/rs1-init.js
+sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongosrd_rs2_1) mongo --port 27017 /rs_inits/rs2-init.js
+#+end_src
+
+** mongos
+暫くしてから実行する
+
+- docker01
+#+begin_src sh
+sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) mongo --port 27017 /rs_inits/mongos01-init.js
+#+end_src
+
+- docker02
+#+begin_src sh
+sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongos_2) mongo --port 27017 /rs_inits/mongos02-init.js
+#+end_src
+
+* swift初期設定
+** 事前準備として各ノードにvolume作成
+
+- docker01
+#+begin_src sh
+sudo docker volume create --name swift_tmp
+#+end_src
+
+** ring作成
+
+- docker01
+#+begin_src sh
+sudo docker run --rm -it -v swift_tmp:/srv -v /root/composes/swift/ring-inits:/ring-inits \
+  morrisjobke/docker-swift-onlyone \
+  bash ./ring-inits/ring_create.sh
+#+end_src
+
+** ring配布
+
+- docker01
+#+begin_src sh
+cp -r /var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_01/_data/
+#+end_src
+
+- docker02
+#+begin_src sh
+scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_02/_data/
+#+end_src
+
+- docker03
+#+begin_src sh
+scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_03/_data/
+#+end_src
+
+
+** 初期コンテナ作成
+#+begin_src sh
+docker exec -it walter_swift_xx \
+  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing post walter
+#+end_src
+
+* 動作確認
+** mongo
+#+begin_src sh
+docker exec -it mongo_cfg_xxx mongo --port 27017
+docker exec -it mongo_srd_xxx mongo --port 27017
+docker exec -it mongos_xx mongo --port 27017
+#+end_src
+
+** swift
+#+begin_src sh
+docker exec -it walter_swift_xx swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing stat walter
+#+end_src
+
