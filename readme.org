@@ -14,9 +14,16 @@ sudo yum install -y yum-utils device-mapper-persistent-data lvm2 \
   libtool-ltdl.x86_64 wget libcgroup policycoreutils-python container-selinux libseccomp
 #+end_src
 
-- docker
+- docker(17.12)
+  今回は17.12を選択
 #+begin_src sh
 wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-17.12.0.ce-1.el7.centos.x86_64.rpm
+sudo rpm -ivh docker-*
+sudo systemctl enable docker
+#+end_src
+
+- docker(17.06.2)
+#+begin_src sh
 wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-17.06.2.ce-1.el7.centos.x86_64.rpm
 wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-selinux-17.03.2.ce-1.el7.centos.noarch.rpm
 sudo rpm -ivh *
@@ -24,7 +31,6 @@ sudo systemctl enable docker
 #+end_src
 
 - hostname
-
 #+begin_src sh
 sudo hostnamectl set-hostname docker2
 #+end_src
@@ -35,7 +41,6 @@ sudo vi /etc/selinux/config # Enforcing -> Disabled
 #+end_src
 
 - reboot
-
 #+begin_src sh
 sudo reboot
 #+end_src
