@@ -243,6 +243,18 @@ docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_swift
   swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing post walter
 #+end_src
 
+* nodejs初期設定
+
+- git pull, npm install
+#+begin_src sh
+docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
+  /bin/bash
+cd /webapp/walter-02/server
+npm install
+cd ../client
+npm install
+#+end_src
+
 * stack再起動
 #+begin_src sh
 docker stack rm walter
