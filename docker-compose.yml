@@ -218,3 +218,8 @@ volumes:
   elastic_02_logs:
   nodejs_01:
   nodejs_02:
+
+networks:
+  default:
+    external:
+      name: "walter_overlay"

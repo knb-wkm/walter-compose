@@ -5,44 +5,46 @@ centos7.x前提
 
 - update
 #+begin_src sh
-$ sudo yum -y update
+sudo yum -y update
 #+end_src
 
 - packages
 #+begin_src sh
-$ sudo yum install -y yum-utils device-mapper-persistent-data lvm2 libtool-ltdl.x86_64 wget libcgroup policycoreutils-python container-selinux libseccomp
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2 \
+  libtool-ltdl.x86_64 wget libcgroup policycoreutils-python container-selinux libseccomp
 #+end_src
 
 - docker
 #+begin_src sh
-$ wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-17.06.2.ce-1.el7.centos.x86_64.rpm
-$ wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-selinux-17.03.2.ce-1.el7.centos.noarch.rpm
-$ sudo rpm -ivh *
-$ sudo systemctl enable docker
+wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-17.12.0.ce-1.el7.centos.x86_64.rpm
+wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-17.06.2.ce-1.el7.centos.x86_64.rpm
+wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-selinux-17.03.2.ce-1.el7.centos.noarch.rpm
+sudo rpm -ivh *
+sudo systemctl enable docker
 #+end_src
 
 - hostname
 
 #+begin_src sh
-$ sudo hostnamectl set-hostname docker2
+sudo hostnamectl set-hostname docker2
 #+end_src
 
 - selinux
 #+begin_src sh
-$ sudo vi /etc/selinux/config # Enforcing -> Disabled
+sudo vi /etc/selinux/config # Enforcing -> Disabled
 #+end_src
 
 - reboot
 
 #+begin_src sh
-$ sudo reboot
+sudo reboot
 #+end_src
 
 - firewalld
 #+begin_src sh
-$ sudo systemctl stop firewalld
-$ sudo systemctl disable firewalld
-$ sudo iptables -nL  # 確認
+sudo systemctl stop firewalld
+sudo systemctl disable firewalld
+sudo iptables -nL  # 確認
 #+end_src
 
 * swarm開始
@@ -161,6 +163,13 @@ sudo docker node update --label-add nodejs.node=2 docker2
 #+end_src
 
 * stack deploy
+
+- overlay network作成
+#+begin_src sh
+docker network create --attachable --driver overlay walter_overlay
+#+end_src
+
+- deploy
 #+begin_src sh
 cd composes
 sudo docker stack deploy walter --compose-file docker-compose.yml
@@ -297,3 +306,10 @@ docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_elast
 
 ** nodejs
 docker-composeのdepends_onがswarmでは無視されるのでdocker stopで凌ぐ...
+* メモ
+
+- overlay networkに使い捨てコンテナを接続しメンテしたいとき
+#+begin_src sh
+docker run -it --rm --network=walter_overlay walter-ubuntu:16.04 /bin/bash
+#+end_src
+
