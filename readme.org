@@ -152,7 +152,6 @@ sudo docker node update --label-add swift.node=3 docker3
 #+begin_src sh
 sudo docker node update --label-add elastic.node=1 docker1
 sudo docker node update --label-add elastic.node=2 docker2
-sudo docker node update --label-add elastic.node=3 docker3
 #+end_src
 
 ** nodejs
