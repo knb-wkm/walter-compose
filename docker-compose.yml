@@ -106,6 +106,7 @@ services:
     volumes:
       - swift_01:/srv
     ports:
+      - 8080:8080
       - 6010:6010
       - 6011:6011
       - 6012:6012
@@ -147,6 +148,8 @@ services:
     image: walter-elasticsearch:5.6
     environment:
       NODE_NAME: "elastic_01"
+    ports:
+      - 9200:9200
     volumes:
       - ./elastic/conf:/usr/share/elasticsearch/config
       - elastic_01_data:/usr/share/elasticsearch/data
