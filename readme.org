@@ -254,6 +254,16 @@ cd ../client
 npm install
 #+end_src
 
+* elastic search初期設定
+#+begin_src sh
+npm run init-elasticsearch
+#+end_src
+
+* mongo初期設定
+#+begin_src sh
+mongo localhost/walter loadTestData.js
+#+end_src
+
 * stack再起動
 #+begin_src sh
 docker stack rm walter
