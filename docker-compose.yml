@@ -1,7 +1,7 @@
 version: "3"
 services:
   mongocfg_rs1_1:
-    image: mongo:3.4.10
+    image: walter-mongo:3.4.10
     command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
     volumes:
       - mongocfg_rs1_1:/data/db
@@ -13,7 +13,7 @@ services:
           - node.labels.mongo.replica.rs1 == 1
 
   mongocfg_rs1_2:
-    image: mongo:3.4.10
+    image: walter-mongo:3.4.10
     command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
     volumes:
       - mongocfg_rs1_2:/data/db
@@ -25,7 +25,7 @@ services:
           - node.labels.mongo.replica.rs1 == 2
 
   mongocfg_rs1_3:
-    image: mongo:3.4.10
+    image: walter-mongo:3.4.10
     command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
     volumes:
       - mongocfg_rs1_3:/data/db
@@ -37,7 +37,7 @@ services:
           - node.labels.mongo.replica.rs1 == 3
 
   mongosrd_rs2_1:
-    image: mongo:3.4.10    
+    image: walter-mongo:3.4.10    
     command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
     volumes:
       - mongosrd_rs2_1:/data/db
@@ -49,7 +49,7 @@ services:
           - node.labels.mongo.replica.rs2 == 1
 
   mongosrd_rs2_2:
-    image: mongo:3.4.10
+    image: walter-mongo:3.4.10
     command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
     volumes:
       - mongosrd_rs2_2:/data/db
@@ -61,7 +61,7 @@ services:
           - node.labels.mongo.replica.rs2 == 2
 
   mongosrd_rs2_3:
-    image: mongo:3.4.10
+    image: walter-mongo:3.4.10
     command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
     volumes:
       - mongosrd_rs2_3:/data/db
@@ -73,7 +73,7 @@ services:
           - node.labels.mongo.replica.rs2 == 3
 
   mongos_1:
-    image: mongo:3.4.10
+    image: walter-mongo:3.4.10
     command: mongos --configdb rs1/mongocfg_rs1_1,mongocfg_rs1_2,mongocfg_rs1_3:27017 --port 27017
     volumes:
       - mongos_1:/data/db
@@ -88,7 +88,7 @@ services:
           - node.labels.mongo.mongos == 1
 
   mongos_2:
-    image: mongo:3.4.10
+    image: walter-mongo:3.4.10
     command: mongos --configdb rs1/mongocfg_rs1_1,mongocfg_rs1_2,mongocfg_rs1_3:27017 --port 27017
     volumes:
       - mongos_2:/data/db
@@ -102,7 +102,7 @@ services:
           - node.labels.mongo.mongos == 2
 
   swift_01:
-    image: morrisjobke/docker-swift-onlyone
+    image: walter-swift
     volumes:
       - swift_01:/srv
     ports:
@@ -117,7 +117,7 @@ services:
           - node.labels.swift.node == 1
 
   swift_02:
-    image: morrisjobke/docker-swift-onlyone
+    image: walter-swift
     volumes:
       - swift_02:/srv
     ports:
@@ -131,7 +131,7 @@ services:
           - node.labels.swift.node == 2
 
   swift_03:
-    image: morrisjobke/docker-swift-onlyone
+    image: walter-swift
     volumes:
       - swift_03:/srv
     ports:

@@ -1,0 +1,1 @@
+FROM morrisjobke/docker-swift-onlyone
