@@ -2,7 +2,7 @@ version: "3"
 services:
   mongocfg_rs1_1:
     image: walter-mongo:3.4.10
-    command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
+    command: mongod --configsvr --replSet rs1 --dbpath /data/db --logpath=/data/logs/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongocfg_rs1_1:/data/db
       - ./mongo/rs_inits:/rs_inits
@@ -14,7 +14,7 @@ services:
 
   mongocfg_rs1_2:
     image: walter-mongo:3.4.10
-    command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
+    command: mongod --configsvr --replSet rs1 --dbpath /data/db --logpath=/data/logs/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongocfg_rs1_2:/data/db
       - ./mongo/rs_inits:/rs_inits
@@ -26,7 +26,7 @@ services:
 
   mongocfg_rs1_3:
     image: walter-mongo:3.4.10
-    command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
+    command: mongod --configsvr --replSet rs1 --dbpath /data/db --logpath=/data/logs/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongocfg_rs1_3:/data/db
       - ./mongo/rs_inits:/rs_inits
@@ -38,7 +38,7 @@ services:
 
   mongosrd_rs2_1:
     image: walter-mongo:3.4.10    
-    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
+    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --logpath=/data/logs/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongosrd_rs2_1:/data/db
       - ./mongo/rs_inits:/rs_inits
@@ -50,7 +50,7 @@ services:
 
   mongosrd_rs2_2:
     image: walter-mongo:3.4.10
-    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
+    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --logpath=/data/logs/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongosrd_rs2_2:/data/db
       - ./mongo/rs_inits:/rs_inits
@@ -62,7 +62,7 @@ services:
 
   mongosrd_rs2_3:
     image: walter-mongo:3.4.10
-    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
+    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --logpath=/data/logs/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongosrd_rs2_3:/data/db
       - ./mongo/rs_inits:/rs_inits
