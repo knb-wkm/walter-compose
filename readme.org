@@ -236,8 +236,13 @@ sudo docker volume create --name swift_tmp
 ** ring作成
 
 - docker01
+  変数はdockerホストのipを指定する
 #+begin_src sh
-sudo docker run --rm -it -v swift_tmp:/srv -v /root/composes/swift/ring-inits:/ring-inits \
+sudo docker run --rm -it -v swift_tmp:/srv \
+  -v /root/composes/swift/ring-inits:/ring-inits \
+  -e "docker1=192.168.56.10" \
+  -e "docker2=192.168.56.11" \
+  -e "docker3=192.168.56.12" \
   morrisjobke/docker-swift-onlyone \
   bash ./ring-inits/ring_create.sh
 #+end_src
