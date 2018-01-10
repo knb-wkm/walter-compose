@@ -115,7 +115,7 @@ sra9s7eo2plu17m8awytb6teb *  docker1   Ready   Active        Leader
 
 * sysctl.conf
 - elastic-searchコンテナ起動時に発生するエラー対策
-- ip_forwardingが無効になる
+- ip_forwardingが無効になる問題
 
 - docker01, 02, 03
 #+begin_src sh
@@ -177,7 +177,10 @@ sudo docker network create --attachable --driver overlay walter_overlay
 
 - image build
 #+begin_src sh
-sudo docker build -t ./ walter-xxx:yyy
+sudo docker build ./elastic -t walter-elasticsearch:5.6
+sudo docker build ./mongo -t walter-mongo:3.4.10
+sudo docker build ./node -t walter-node:6.12
+sudo docker build ./swift -t walter-swift
 #+end_src
 
 - deploy
@@ -216,6 +219,8 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
 
 - docker01
 #+begin_src sh
+git pull origin develop
+
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
   mongo localhost/walter /webapp/server/jobs/loadTestData.js
 #+end_src

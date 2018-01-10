@@ -13,6 +13,6 @@ swift-ring-builder container.builder rebalance
 
 swift-ring-builder account.builder create 18 3 1
 swift-ring-builder account.builder add --region 1 --zone 1 --ip 10.30.88.74 --port 6012 --device sdb --weight 100
-swift-ring-builder account.builder add --region 2 --zone 1 --ip 10.30.88.75 --port 6032 --device sdb --weight 100
+swift-ring-builder account.builder add --region 2 --zone 1 --ip 10.30.88.75 --port 6022 --device sdb --weight 100
 swift-ring-builder account.builder add --region 3 --zone 1 --ip 10.30.88.76 --port 6032 --device sdb --weight 100
 swift-ring-builder account.builder rebalance
