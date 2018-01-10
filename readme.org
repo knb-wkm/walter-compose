@@ -20,6 +20,7 @@ sudo yum install -y yum-utils device-mapper-persistent-data lvm2 \
 wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-17.12.0.ce-1.el7.centos.x86_64.rpm
 sudo rpm -ivh docker-*
 sudo systemctl enable docker
+sudo systemctl start docker
 #+end_src
 
 - docker(17.06.2)
@@ -54,13 +55,15 @@ sudo iptables -nL  # 確認
 
 * swarm開始
 
+- docker01
 #+begin_src sh
-root@docker1# docker swarm init --advertise-addr=192.168.56.10 --listen-addr=0.0.0.0:2377
+docker swarm init --advertise-addr=192.168.56.10 --listen-addr=0.0.0.0:2377
 #+end_src
 
 - docker infoで確認
 #+begin_src sh
-root@docker1# docker info
+docker info
+
 Swarm: active
  NodeID: 94vhdgljahay6gwn283iwa5ij
  Is Manager: true
@@ -73,7 +76,8 @@ Swarm: active
 
 - docker nodeで確認
 #+begin_src sh
-root@docker1# docker node ls
+docker node ls
+
 ID                            HOSTNAME            STATUS              AVAILABILITY        MANAGER STATUS
 94vhdgljahay6gwn283iwa5ij *   docker1             Ready               Active              Leader
 #+end_src
@@ -168,7 +172,12 @@ sudo docker node update --label-add nodejs.node=2 docker2
 
 - overlay network作成
 #+begin_src sh
-docker network create --attachable --driver overlay walter_overlay
+sudo docker network create --attachable --driver overlay walter_overlay
+#+end_src
+
+- image build
+#+begin_src sh
+sudo docker build -t ./ walter-xxx:yyy
 #+end_src
 
 - deploy
@@ -181,10 +190,10 @@ sudo docker stack deploy walter --compose-file docker-compose.yml
 ** rs1, rs2の初期化
 - docker01
 #+begin_src sh
-sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongocfg_rs1_1) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongocfg_rs1_1) \
   mongo --port 27017 /rs_inits/rs1-init.js
 
-sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongosrd_rs2_1) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongosrd_rs2_1) \
   mongo --port 27017 /rs_inits/rs2-init.js
 #+end_src
 
@@ -193,13 +202,13 @@ sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_
 
 - docker01
 #+begin_src sh
-sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
   mongo --port 27017 /rs_inits/mongos01-init.js
 #+end_src
 
 - docker02
 #+begin_src sh
-sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongos_2) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongos_2) \
   mongo --port 27017 /rs_inits/mongos02-init.js
 #+end_src
 
@@ -207,7 +216,7 @@ sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_
 
 - docker01
 #+begin_src sh
-sudo docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
   mongo localhost/walter /webapp/server/jobs/loadTestData.js
 #+end_src
 
@@ -249,7 +258,7 @@ scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_tmp/_data/* /var/lib/doc
 ** 初期コンテナ作成
 - docker01
 #+begin_src sh
-docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
   swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing post walter
 #+end_src
 
@@ -257,7 +266,7 @@ docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_swift
 
 - git pull, npm install
 #+begin_src sh
-docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
   /bin/bash
 cd /webapp/walter-02/server
 npm install
@@ -277,32 +286,54 @@ mongo localhost/walter loadTestData.js
 
 * stack再起動
 #+begin_src sh
-docker stack rm walter
-docker stack deploy walter --compose-file docker-compose.yml
+sudo docker stack rm walter
+sudo docker stack deploy walter --compose-file docker-compose.yml
+#+end_src
+
+* nginx
+
+- add repository
+#+begin_src sh
+sudo su
+
+cat << EOF > /etc/yum.repos.d/nginx.repo
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/mainline/centos/7/\$basearch/
+gpgcheck=0
+enabled=1
+EOF
+#+end_src
+
+- install
+#+begin_src sh
+sudo yum install nginx
+sudo systemctl enable nginx
+sudo systemctl start nginx
 #+end_src
 
 * 動作確認
 ** mongo
 #+begin_src sh
-docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongocfg_rs1_1) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongocfg_rs1_1) \
   mongo --port 27017
 
-docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongosrd_rs2_1) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongosrd_rs2_1) \
   mongo --port 27017
 
-docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
   mongo --port 27017
 #+end_src
 
 ** swift
 #+begin_src sh
-docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
   swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing stat walter
 #+end_src
 
 ** elastic
 #+begin_src sh
-docker exec -it $(docker ps -qf label=com.docker.swarm.service.name=walter_elastic_01) \
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_elastic_01) \
   curl -X get http://localhost:9200/_cluster/state
 #+end_src
 
@@ -312,6 +343,6 @@ docker-composeのdepends_onがswarmでは無視されるのでdocker stopで凌�
 
 - overlay networkに使い捨てコンテナを接続しメンテしたいとき
 #+begin_src sh
-docker run -it --rm --network=walter_overlay walter-ubuntu:16.04 /bin/bash
+sudo docker run -it --rm --network=walter_overlay walter-ubuntu:16.04 /bin/bash
 #+end_src
 
