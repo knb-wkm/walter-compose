@@ -2,9 +2,10 @@ version: "3"
 services:
   mongocfg_rs1_1:
     image: walter-mongo:3.4.10
-    command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
+    command: mongod --configsvr --replSet rs1 --dbpath /data/db --logpath=/var/log/mongodb/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongocfg_rs1_1:/data/db
+      - mongocfg_rs1_1_logs:/var/log/mongodb
       - ./mongo/rs_inits:/rs_inits
     deploy:
       replicas: 1
@@ -14,9 +15,10 @@ services:
 
   mongocfg_rs1_2:
     image: walter-mongo:3.4.10
-    command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
+    command: mongod --configsvr --replSet rs1 --dbpath /data/db --logpath=/var/log/mongodb/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongocfg_rs1_2:/data/db
+      - mongocfg_rs1_2_logs:/var/log/mongodb
       - ./mongo/rs_inits:/rs_inits
     deploy:
       replicas: 1
@@ -26,9 +28,10 @@ services:
 
   mongocfg_rs1_3:
     image: walter-mongo:3.4.10
-    command: mongod --configsvr --replSet rs1 --dbpath /data/db --port 27017
+    command: mongod --configsvr --replSet rs1 --dbpath /data/db --logpath=/var/log/mongodb/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongocfg_rs1_3:/data/db
+      - mongocfg_rs1_3_logs:/var/log/mongodb
       - ./mongo/rs_inits:/rs_inits
     deploy:
       replicas: 1
@@ -38,9 +41,10 @@ services:
 
   mongosrd_rs2_1:
     image: walter-mongo:3.4.10    
-    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
+    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --logpath=/var/log/mongodb/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongosrd_rs2_1:/data/db
+      - mongosrd_rs2_1_logs:/var/log/mongodb
       - ./mongo/rs_inits:/rs_inits
     deploy:
       replicas: 1
@@ -50,9 +54,10 @@ services:
 
   mongosrd_rs2_2:
     image: walter-mongo:3.4.10
-    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
+    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --logpath=/var/log/mongodb/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongosrd_rs2_2:/data/db
+      - mongosrd_rs2_2_logs:/var/log/mongodb
       - ./mongo/rs_inits:/rs_inits
     deploy:
       replicas: 1
@@ -62,9 +67,10 @@ services:
 
   mongosrd_rs2_3:
     image: walter-mongo:3.4.10
-    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --port 27017
+    command: mongod --shardsvr --replSet rs2 --dbpath /data/db --logpath=/var/log/mongodb/mongo.log --profile=1 --slowms=-1 --port 27017
     volumes:
       - mongosrd_rs2_3:/data/db
+      - mongosrd_rs2_3_logs:/var/log/mongodb
       - ./mongo/rs_inits:/rs_inits
     deploy:
       replicas: 1
@@ -202,11 +208,17 @@ services:
 
 volumes:
   mongocfg_rs1_1:
+  mongocfg_rs1_1_logs:
   mongocfg_rs1_2:
+  mongocfg_rs1_2_logs:
   mongocfg_rs1_3:
+  mongocfg_rs1_3_logs:
   mongosrd_rs2_1:
+  mongosrd_rs2_1_logs:
   mongosrd_rs2_2:
+  mongosrd_rs2_2_logs:
   mongosrd_rs2_3:
+  mongosrd_rs2_3_logs:
   mongos_1:
   mongos_2:
   swift_01:
