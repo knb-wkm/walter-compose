@@ -203,6 +203,9 @@ services:
       - 3000:3333
     environment:
       - NODE_ENV=production
+      - MONGO_HOST_NAME=mongos_1
+      - SWIFT_HOST_NAME=swift_01
+      - ELASTIC_HOST_NAME=elastic_01
     deploy:
       replicas: 1
       placement:
@@ -218,6 +221,9 @@ services:
       - 3001:3333
     environment:
       - NODE_ENV=production
+      - MONGO_HOST_NAME=mongos_2
+      - SWIFT_HOST_NAME=swift_02
+      - ELASTIC_HOST_NAME=elastic_02
     deploy:
       replicas: 1
       placement:
