@@ -157,7 +157,7 @@ services:
     ports:
       - 9200:9200
     volumes:
-      - ./elastic/conf:/usr/share/elasticsearch/config
+      - ./elastic/config/elastic_01:/usr/share/elasticsearch/config
       - elastic_01_data:/usr/share/elasticsearch/data
       - elastic_01_logs:/usr/share/elasticsearch/logs
     deploy:
@@ -171,7 +171,7 @@ services:
     environment:
       NODE_NAME: "elastic_02"
     volumes:
-      - ./elastic/conf:/usr/share/elasticsearch/config
+      - ./elastic/config/elastic_02:/usr/share/elasticsearch/config
       - elastic_02_data:/usr/share/elasticsearch/data
       - elastic_02_logs:/usr/share/elasticsearch/logs
     deploy:
