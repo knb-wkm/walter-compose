@@ -27,7 +27,7 @@ node.name: ${NODE_NAME}
 #node.attr.rack: r1
 #
 node.master: true
-node.data: true
+node.data: false
 
 # ----------------------------------- Paths ------------------------------------
 #
