@@ -160,6 +160,7 @@ sudo docker node update --label-add swift.node=3 docker3
 #+begin_src sh
 sudo docker node update --label-add elastic.node=1 docker1
 sudo docker node update --label-add elastic.node=2 docker2
+sudo docker node update --label-add elastic.node=3 docker3
 #+end_src
 
 ** nodejs
@@ -327,7 +328,7 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
   /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && cd ../client && npm install"
 
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
-  /bin/bash -c "cd /webapp/walter-02/server/configs && cp server.js.dist server.js"
+  /bin/bash -c "cd /webapp/walter-02/server/lib/configs && cp server.js.dist server.js"
 #+end_src
 
 - docker2
@@ -336,7 +337,7 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
   /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && cd ../client && npm install"
 
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
-  /bin/bash -c "cd /webapp/walter-02/server/configs && cp server.js.dist server.js"
+  /bin/bash -c "cd /webapp/walter-02/server/lib/configs && cp server.js.dist server.js"
 #+end_src
 
 - docker1 reload
@@ -423,3 +424,16 @@ docker-composeのdepends_onがswarmでは無視されるのでdocker stopで凌�
 sudo docker run -it --rm --network=walter_overlay walter-ubuntu:16.04 /bin/bash
 #+end_src
 
+* deploy
+
+- docker01
+#+begin_src sh
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
+  /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && npm run build && cd ../client && npm install && npm run build"
+#+end_src
+
+- docker02
+#+begin_src sh
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
+  /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && npm run build && cd ../client && npm install && npm run build"
+#+end_src
