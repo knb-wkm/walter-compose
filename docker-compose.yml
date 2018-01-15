@@ -232,7 +232,7 @@ services:
 
   mainte_01:
     image: walter-mainte
-    command: bash -c "while true; sleep 1000; done"
+    command: bash -c "while true; sleep 1h; done"
     deploy:
       replicas: 1
       placement:
@@ -241,7 +241,7 @@ services:
 
   mainte_02:
     image: walter-mainte
-    command: bash -c "while true; sleep 1000; done"
+    command: bash -c "while true; sleep 1h; done"
     deploy:
       replicas: 1
       placement:
