@@ -237,6 +237,8 @@ sudo docker volume create --name swift_tmp
 
 - docker01
   変数はdockerホストのipを指定する
+
+- test環境(virtualbox)
 #+begin_src sh
 sudo docker run --rm -it -v swift_tmp:/srv \
   -v /root/composes/swift/ring-inits:/ring-inits \
@@ -247,11 +249,28 @@ sudo docker run --rm -it -v swift_tmp:/srv \
   bash ./ring-inits/ring_create.sh
 #+end_src
 
-** ring配布
+- 本番環境
+#+begin_src sh
+sudo docker run --rm -it -v swift_tmp:/srv \
+  -v /home/y-wakayama/composes/swift/ring-inits:/ring-inits \
+  -e "docker1=10.30.88.74" \
+  -e "docker2=10.30.88.75" \
+  -e "docker3=10.30.88.76" \
+  morrisjobke/docker-swift-onlyone \
+  bash ./ring-inits/ring_create.sh
+#+end_src
 
+** ring配布
+*** 停止
+#+begin_src sh
+sudo docker stack rm walter
+#+end_src
+
+*** test環境
 - docker01
 #+begin_src sh
-cp -r /var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_01/_data/
+sudo rm -fR /var/lib/docker/volumes/walter_swift_01/_data/*
+sudo cp -pR /var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_01/_data/
 #+end_src
 
 - docker02
@@ -264,6 +283,35 @@ scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_tmp/_data/* /var/lib/doc
 scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_03/_data/
 #+end_src
 
+- リロード
+#+begin_src sh
+sudo docker stack deploy walter --compose-file docker-compose.yml
+#+end_src
+
+*** 本番環境
+- docker01
+#+begin_src sh
+sudo rm -f /var/lib/docker/volumes/walter_swift_01/_data/*
+sudo cp -pR /var/lib/docker/volumes/swift_tmp/_data ~/
+sudo cp -pR ~/_data/* /var/lib/docker/volumes/walter_swift_01/_data/
+#+end_src
+
+- docker02
+#+begin_src sh
+sudo rm -f /var/lib/docker/volumes/walter_swift_02/_data/*
+sudo scp -r y-wakayama@10.30.88.74:/home/y-wakayama/_data/* /var/lib/docker/volumes/walter_swift_02/_data/
+#+end_src
+
+- docker03
+#+begin_src sh
+sudo rm -f /var/lib/docker/volumes/walter_swift_03/_data/*
+sudo scp -r y-wakayama@10.30.88.74:/home/y-wakayama/_data/* /var/lib/docker/volumes/walter_swift_03/_data/
+#+end_src
+
+- リロード
+#+begin_src sh
+sudo docker stack deploy walter --compose-file docker-compose.yml
+#+end_src
 
 ** 初期コンテナ作成
 - docker01
@@ -273,25 +321,44 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
 #+end_src
 
 * nodejs初期設定
-
-- git pull, npm install
+- docker1
 #+begin_src sh
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
-  /bin/bash
-cd /webapp/walter-02/server
-npm install
-cd ../client
-npm install
+  /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && cd ../client && npm install"
+
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
+  /bin/bash -c "cd /webapp/walter-02/server/configs && cp server.js.dist server.js"
 #+end_src
 
-* elastic search初期設定
+- docker2
 #+begin_src sh
-npm run init-elasticsearch
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
+  /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && cd ../client && npm install"
+
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
+  /bin/bash -c "cd /webapp/walter-02/server/configs && cp server.js.dist server.js"
+#+end_src
+
+- docker1 reload
+#+begin_src sh
+sudo docker stop $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01)
+#+end_src
+
+- docker2 reload
+#+begin_src sh
+sudo docker stop $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02)
 #+end_src
 
 * mongo初期設定
 #+begin_src sh
-mongo localhost/walter loadTestData.js
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
+  mongo --port 27017 --host localhost walter /webapp/server/jobs/loadMsData.js
+#+end_src
+
+* elastic search初期設定
+#+begin_src sh
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
+  /bin/bash -c "cd /webapp/walter-02/server && npm run init-elasticsearch test"
 #+end_src
 
 * stack再起動
@@ -300,8 +367,7 @@ sudo docker stack rm walter
 sudo docker stack deploy walter --compose-file docker-compose.yml
 #+end_src
 
-* nginx
-
+* nginx構築、設定
 - add repository
 #+begin_src sh
 sudo su
@@ -344,11 +410,12 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
 ** elastic
 #+begin_src sh
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_elastic_01) \
-  curl -X get http://localhost:9200/_cluster/state
+  curl -X get http://localhost:9200
 #+end_src
 
 ** nodejs
 docker-composeのdepends_onがswarmでは無視されるのでdocker stopで凌ぐ...
+
 * メモ
 
 - overlay networkに使い捨てコンテナを接続しメンテしたいとき
