@@ -111,6 +111,7 @@ services:
     image: walter-swift
     volumes:
       - swift_01:/srv
+      - ./swift/configs:/etc/swift
     ports:
       - 8080:8080
       - 6010:6010
@@ -126,6 +127,7 @@ services:
     image: walter-swift
     volumes:
       - swift_02:/srv
+      - ./swift/configs:/etc/swift
     ports:
       - 6020:6010
       - 6021:6011
@@ -140,6 +142,7 @@ services:
     image: walter-swift
     volumes:
       - swift_03:/srv
+      - ./swift/configs:/etc/swift
     ports:
       - 6030:6010
       - 6031:6011
