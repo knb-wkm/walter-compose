@@ -230,6 +230,24 @@ services:
         constraints:
           - node.labels.nodejs.node == 2
 
+  mainte_01:
+    image: walter-mainte
+    command: "/bin/bash"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.nodejs.node == 1
+
+  mainte_02:
+    image: walter-mainte
+    command: "/bin/bash"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.nodejs.node == 2
+
 volumes:
   mongocfg_rs1_1:
   mongocfg_rs1_1_logs:
