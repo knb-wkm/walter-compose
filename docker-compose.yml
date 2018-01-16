@@ -111,6 +111,8 @@ services:
     image: walter-swift
     volumes:
       - swift_01:/srv
+    ports:
+      - 8080:8080
     deploy:
       replicas: 1
       placement:
