@@ -105,6 +105,7 @@ services:
 
   swift_01:
     image: walter-swift
+    command: /usr/bin/supervisord -c /etc/swift/supervisord.conf
     volumes:
       - swift_01:/srv
       - ./swift/configs/swift_01:/etc/swift
@@ -133,6 +134,7 @@ services:
 
   swift_02:
     image: walter-swift
+    command: /usr/bin/supervisord -c /etc/swift/supervisord.conf
     volumes:
       - swift_02:/srv
       - ./swift/configs/swift_02:/etc/swift
