@@ -246,7 +246,7 @@ sudo docker run --rm -it -v swift_tmp:/srv \
   -e "docker1=192.168.56.10" \
   -e "docker2=192.168.56.11" \
   -e "docker3=192.168.56.12" \
-  morrisjobke/docker-swift-onlyone \
+  walter-swift \
   bash ./ring-inits/ring_create.sh
 #+end_src
 
@@ -257,20 +257,14 @@ sudo docker run --rm -it -v swift_tmp:/srv \
   -e "docker1=10.30.88.74" \
   -e "docker2=10.30.88.75" \
   -e "docker3=10.30.88.76" \
-  morrisjobke/docker-swift-onlyone \
+  walter-swift \
   bash ./ring-inits/ring_create.sh
 #+end_src
 
 ** ring配布
-*** 停止
-#+begin_src sh
-sudo docker stack rm walter
-#+end_src
-
 *** test環境
 - docker01
 #+begin_src sh
-sudo rm -fR /var/lib/docker/volumes/walter_swift_01/_data/*
 sudo cp -pR /var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_01/_data/
 #+end_src
 
@@ -290,27 +284,31 @@ sudo docker stack deploy walter --compose-file docker-compose.yml
 #+end_src
 
 *** 本番環境
+- rm, create
+#+begin_src sh
+sudo docker volume rm walter_swift_0x
+sudo docker volume create --name walter_swift_0x
+#+end_src
+
 - docker01
 #+begin_src sh
-sudo rm -f /var/lib/docker/volumes/walter_swift_01/_data/*
 sudo cp -pR /var/lib/docker/volumes/swift_tmp/_data ~/
 sudo cp -pR ~/_data/* /var/lib/docker/volumes/walter_swift_01/_data/
 #+end_src
 
 - docker02
 #+begin_src sh
-sudo rm -f /var/lib/docker/volumes/walter_swift_02/_data/*
 sudo scp -r y-wakayama@10.30.88.74:/home/y-wakayama/_data/* /var/lib/docker/volumes/walter_swift_02/_data/
 #+end_src
 
 - docker03
 #+begin_src sh
-sudo rm -f /var/lib/docker/volumes/walter_swift_03/_data/*
 sudo scp -r y-wakayama@10.30.88.74:/home/y-wakayama/_data/* /var/lib/docker/volumes/walter_swift_03/_data/
 #+end_src
 
 - リロード
 #+begin_src sh
+sudo docker stack rm walter
 sudo docker stack deploy walter --compose-file docker-compose.yml
 #+end_src
 
@@ -319,6 +317,12 @@ sudo docker stack deploy walter --compose-file docker-compose.yml
 #+begin_src sh
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
   swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing post walter
+#+end_src
+
+- 削除する場合
+#+begin_src sh
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
+  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing delete --all
 #+end_src
 
 * nodejs初期設定
@@ -360,6 +364,18 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
 #+begin_src sh
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
   /bin/bash -c "cd /webapp/walter-02/server && npm run init-elasticsearch test"
+#+end_src
+
+- docker01
+#+begin_src sh
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
+  bash -c "cd /webapp/walter-02/server && npm install babel-plugin-transform-runtime"
+#+end_src
+
+- docker02
+#+begin_src sh
+sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
+  bash -c "cd /webapp/walter-02/server && npm install babel-plugin-transform-runtime"
 #+end_src
 
 * stack再起動
@@ -418,14 +434,12 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
 docker-composeのdepends_onがswarmでは無視されるのでdocker stopで凌ぐ...
 
 * メモ
-
 - overlay networkに使い捨てコンテナを接続しメンテしたいとき
 #+begin_src sh
 sudo docker run -it --rm --network=walter_overlay walter-ubuntu:16.04 /bin/bash
 #+end_src
 
 * deploy
-
 - docker01
 #+begin_src sh
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
@@ -437,3 +451,4 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
   /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && npm run build && cd ../client && npm install && npm run build"
 #+end_src
+
