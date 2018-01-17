@@ -107,6 +107,7 @@ services:
     image: walter-swift
     volumes:
       - swift_01:/srv
+      - ./swift/configs/swift_01:/etc/swift
     ports:
       - target: 8080
         published: 8080
