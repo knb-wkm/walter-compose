@@ -85,8 +85,6 @@ services:
       - mongos_1:/data/db
       - ./mongo/rs_inits:/rs_inits
       - ./walter-02:/webapp
-    ports:
-      - 27017:27017
     deploy:
       replicas: 1
       placement:
@@ -99,8 +97,6 @@ services:
     volumes:
       - mongos_2:/data/db
       - ./mongo/rs_inits:/rs_inits
-    ports:
-      - 27018:27017
     deploy:
       replicas: 1
       placement:
@@ -112,7 +108,22 @@ services:
     volumes:
       - swift_01:/srv
     ports:
-      - 8080:8080
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+      - target: 6010
+        published: 6010
+        protocol: tcp
+        mode: host
+      - target: 6011
+        published: 6011
+        protocol: tcp
+        mode: host
+      - target: 6012
+        published: 6012
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 1
       placement:
@@ -123,6 +134,23 @@ services:
     image: walter-swift
     volumes:
       - swift_02:/srv
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+      - target: 6010
+        published: 6010
+        protocol: tcp
+        mode: host
+      - target: 6011
+        published: 6011
+        protocol: tcp
+        mode: host
+      - target: 6012
+        published: 6012
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 1
       placement:
