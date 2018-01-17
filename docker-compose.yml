@@ -133,14 +133,6 @@ services:
     image: walter-elasticsearch:5.6
     environment:
       NODE_NAME: "elastic_01"
-    ports:
-      - target: 9200
-        published: 9200
-        protocol: tcp
-        mode: host
-      - target: 9300
-        published: 9300
-        mode: host
     volumes:
       - ./elastic/config/elastic_01:/usr/share/elasticsearch/config
       - elastic_01_data:/usr/share/elasticsearch/data
@@ -155,14 +147,6 @@ services:
     image: walter-elasticsearch:5.6
     environment:
       NODE_NAME: "elastic_02"
-    ports:
-      - target: 9200
-        published: 9200
-        protocol: tcp
-        mode: host
-      - target: 9300
-        published: 9300
-        mode: host
     volumes:
       - ./elastic/config/elastic_02:/usr/share/elasticsearch/config
       - elastic_02_data:/usr/share/elasticsearch/data
@@ -177,14 +161,6 @@ services:
     image: walter-elasticsearch:5.6
     environment:
       NODE_NAME: "elastic_03"
-    ports:
-      - target: 9200
-        published: 9200
-        protocol: tcp
-        mode: host
-      - target: 9300
-        published: 9300
-        mode: host
     volumes:
       - ./elastic/config/elastic_03:/usr/share/elasticsearch/config
       - elastic_03_data:/usr/share/elasticsearch/data
