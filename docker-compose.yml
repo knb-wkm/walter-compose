@@ -205,7 +205,10 @@ services:
     volumes:
       - nodejs_01:/webapp
     ports:
-      - 3000:3333
+      - target: 3333
+        published: 3000
+        protocol: tcp
+        mode: host
     environment:
       - NODE_ENV=production
       - MONGO_HOST_NAME=mongos_1
@@ -223,7 +226,10 @@ services:
     volumes:
       - nodejs_02:/webapp
     ports:
-      - 3001:3333
+      - target: 3333
+        published: 3000
+        protocol: tcp
+        mode: host
     environment:
       - NODE_ENV=production
       - MONGO_HOST_NAME=mongos_2
