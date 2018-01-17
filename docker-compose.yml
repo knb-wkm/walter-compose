@@ -105,7 +105,7 @@ services:
 
   swift_01:
     image: walter-swift
-    command: bash -c "/usr/bin/supervisord -c /etc/swift/supervisord.conf && tail -n 0 -f /var/log/syslog"
+    command: bash -c "/usr/bin/supervisord -c /etc/swift/supervisord.conf && sleep 3 && tail -n 0 -f /var/log/syslog"
     volumes:
       - swift_01:/srv
       - ./swift/configs/swift_01:/etc/swift
@@ -134,7 +134,7 @@ services:
 
   swift_02:
     image: walter-swift
-    command: bash -c "/usr/bin/supervisord -c /etc/swift/supervisord.conf && tail -n 0 -f /var/log/syslog"
+    command: bash -c "/usr/bin/supervisord -c /etc/swift/supervisord.conf && sleep 3 && tail -n 0 -f /var/log/syslog"
     volumes:
       - swift_02:/srv
       - ./swift/configs/swift_02:/etc/swift
