@@ -452,3 +452,20 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
   /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && npm run build && cd ../client && npm install && npm run build"
 #+end_src
 
+
+#+begin_src sh
+sudo docker run --rm -it --name walter-nodejs-tmp bash
+cd /webapp/walter-02
+git pull origin develop
+cd client
+npm install
+npm run build
+cd ../server
+npm install
+npm run build
+cd lib/configs
+cp server.js.dist server.js
+
+sudo docker commit walter-nodejs-tmp walter-nodejs:6.12
+sudo docker stop $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01)
+#+end_src
