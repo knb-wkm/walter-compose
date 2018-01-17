@@ -68,7 +68,7 @@ network.host: 0.0.0.0
 # Pass an initial list of hosts to perform discovery when new node is started:
 # The default list of hosts is ["127.0.0.1", "[::1]"]
 #
-discovery.zen.ping.unicast.hosts: ["elastic_01", "elastic_02", "elastic_03"]
+discovery.zen.ping.unicast.hosts: ["192.168.56.10", "192.168.56.11", "192.168.56.12"]
 #
 # Prevent the "split brain" by configuring the majority of nodes (total number of master-eligible nodes / 2 + 1):
 #
