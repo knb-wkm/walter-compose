@@ -193,7 +193,7 @@ services:
     image: walter-node:6.12
     command: bash -c "cd /webapp/walter-02/server && npm start"
     volumes:
-      - nodejs_01:/webapp
+      - nodejs_01_logs:/webapp/walter-02/server/logs
     ports:
       - target: 3333
         published: 3000
@@ -214,7 +214,7 @@ services:
     image: walter-node:6.12
     command: bash -c "cd /webapp/walter-02/server && npm start"
     volumes:
-      - nodejs_02:/webapp
+      - nodejs_02_logs:/webapp/walter-02/server/logs
     ports:
       - target: 3333
         published: 3000
@@ -252,8 +252,8 @@ volumes:
   elastic_01_logs:
   elastic_02_data:
   elastic_02_logs:
-  nodejs_01:
-  nodejs_02:
+  nodejs_01_logs:
+  nodejs_02_logs:
 
 networks:
   default:
