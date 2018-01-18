@@ -92,22 +92,3 @@ discovery.zen.fd.ping_retries: 10
 #
 #action.destructive_requires_name: true
 #
-# ---------------------------------- Index --------------------------------------
-# You can set a number of options (such as shard/replica options, mapping
-# or analyzer definitions, translog settings, ...) for indices globally,
-# in this file.
-#
-# Note, that it makes more sense to configure index settings specifically for
-# a certain index, either when creating it or by using the index templates API.
-#
-# See <http://elasticsearch.org/guide/en/elasticsearch/reference/current/index-modules.html> and
-# <http://elasticsearch.org/guide/en/elasticsearch/reference/current/indices-create-index.html>
-# for more information.
-# Set the number of shards (splits) of an index (5 by default):
-#
-# index.number_of_shards: 5
-
-# Set the number of replicas (additional copies) of an index (1 by default):
-#
-index.number_of_replicas: 2
-
