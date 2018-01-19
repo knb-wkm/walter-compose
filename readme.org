@@ -227,92 +227,19 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
 #+end_src
 
 * swift初期設定
-** 事前準備として各ノードにvolume作成
-
-- docker01
-#+begin_src sh
-sudo docker volume create --name swift_tmp
-#+end_src
-
 ** ring作成
 
-- docker01
-  変数はdockerホストのipを指定する
-
-- test環境(virtualbox)
+- docker01, 02, 03にて実行する
 #+begin_src sh
-sudo docker run --rm -it -v swift_tmp:/srv \
-  -v /root/composes/swift/ring-inits:/ring-inits \
-  -e "docker1=192.168.56.10" \
-  -e "docker2=192.168.56.11" \
-  -e "docker3=192.168.56.12" \
-  walter-swift \
-  bash ./ring-inits/ring_create.sh
+sudo docker exec -it -e docker01=192.168.56.10 -e docker02=192.168.56.11 -e docker03=192.168.56.12 \
+$(docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
+bash /ring-inits/ring_create.sh
+
 #+end_src
 
-- 本番環境
-#+begin_src sh
-sudo docker run --rm -it -v swift_tmp:/srv \
-  -v /home/y-wakayama/composes/swift/ring-inits:/ring-inits \
-  -e "docker1=10.30.88.74" \
-  -e "docker2=10.30.88.75" \
-  -e "docker3=10.30.88.76" \
-  walter-swift \
-  bash ./ring-inits/ring_create.sh
-#+end_src
+** container stop, start
 
-** ring配布
-*** test環境
-- docker01
-#+begin_src sh
-sudo cp -pR /var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_01/_data/
-#+end_src
-
-- docker02
-#+begin_src sh
-scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_02/_data/
-#+end_src
-
-- docker03
-#+begin_src sh
-scp -r root@192.168.56.10:/var/lib/docker/volumes/swift_tmp/_data/* /var/lib/docker/volumes/walter_swift_03/_data/
-#+end_src
-
-- リロード
-#+begin_src sh
-sudo docker stack deploy walter --compose-file docker-compose.yml
-#+end_src
-
-*** 本番環境
-- rm, create
-#+begin_src sh
-sudo docker volume rm walter_swift_0x
-sudo docker volume create --name walter_swift_0x
-#+end_src
-
-- docker01
-#+begin_src sh
-sudo cp -pR /var/lib/docker/volumes/swift_tmp/_data ~/
-sudo cp -pR ~/_data/* /var/lib/docker/volumes/walter_swift_01/_data/
-#+end_src
-
-- docker02
-#+begin_src sh
-sudo scp -r y-wakayama@10.30.88.74:/home/y-wakayama/_data/* /var/lib/docker/volumes/walter_swift_02/_data/
-#+end_src
-
-- docker03
-#+begin_src sh
-sudo scp -r y-wakayama@10.30.88.74:/home/y-wakayama/_data/* /var/lib/docker/volumes/walter_swift_03/_data/
-#+end_src
-
-- リロード
-#+begin_src sh
-sudo docker stack rm walter
-sudo docker stack deploy walter --compose-file docker-compose.yml
-#+end_src
-
-** 初期コンテナ作成
+** 初期swiftコンテナ作成
 - docker01
 #+begin_src sh
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
@@ -325,63 +252,17 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
   swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing delete --all
 #+end_src
 
-* nodejs初期設定
-- docker1
+* nodejs初期設定(deploy)
+- docker01, 02
 #+begin_src sh
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
-  /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && cd ../client && npm install"
-
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
-  /bin/bash -c "cd /webapp/walter-02/server/lib/configs && cp server.js.dist server.js"
-#+end_src
-
-- docker2
-#+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
-  /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && cd ../client && npm install"
-
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
-  /bin/bash -c "cd /webapp/walter-02/server/lib/configs && cp server.js.dist server.js"
-#+end_src
-
-- docker1 reload
-#+begin_src sh
-sudo docker stop $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01)
-#+end_src
-
-- docker2 reload
-#+begin_src sh
-sudo docker stop $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02)
-#+end_src
-
-* mongo初期設定
-#+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
-  mongo --port 27017 --host localhost walter /webapp/server/jobs/loadMsData.js
+    bash /scripts/deploy.sh
 #+end_src
 
 * elastic search初期設定
 #+begin_src sh
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
   /bin/bash -c "cd /webapp/walter-02/server && npm run init-elasticsearch test"
-#+end_src
-
-- docker01
-#+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
-  bash -c "cd /webapp/walter-02/server && npm install babel-plugin-transform-runtime"
-#+end_src
-
-- docker02
-#+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
-  bash -c "cd /webapp/walter-02/server && npm install babel-plugin-transform-runtime"
-#+end_src
-
-* stack再起動
-#+begin_src sh
-sudo docker stack rm walter
-sudo docker stack deploy walter --compose-file docker-compose.yml
 #+end_src
 
 * nginx構築、設定
@@ -439,33 +320,3 @@ docker-composeのdepends_onがswarmでは無視されるのでdocker stopで凌�
 sudo docker run -it --rm --network=walter_overlay walter-ubuntu:16.04 /bin/bash
 #+end_src
 
-* deploy
-- docker01
-#+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
-  /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && npm run build && cd ../client && npm install && npm run build"
-#+end_src
-
-- docker02
-#+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_02) \
-  /bin/bash -c "cd /webapp/walter-02/server && git pull origin develop && npm install && npm run build && cd ../client && npm install && npm run build"
-#+end_src
-
-
-#+begin_src sh
-sudo docker run --rm -it --name walter-nodejs-tmp bash
-cd /webapp/walter-02
-git pull origin develop
-cd client
-npm install
-npm run build
-cd ../server
-npm install
-npm run build
-cd lib/configs
-cp server.js.dist server.js
-
-sudo docker commit walter-nodejs-tmp walter-nodejs:6.12
-sudo docker stop $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01)
-#+end_src
