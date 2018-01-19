@@ -226,6 +226,7 @@ services:
     command: bash -c "cd /webapp/walter-02/server && npm start"
     volumes:
       - nodejs_01_logs:/webapp/walter-02/server/logs
+      - ./node/scripts:/scripts
     ports:
       - target: 3333
         published: 3000
@@ -247,6 +248,7 @@ services:
     command: bash -c "cd /webapp/walter-02/server && npm start"
     volumes:
       - nodejs_02_logs:/webapp/walter-02/server/logs
+      - ./node/scripts:/scripts
     ports:
       - target: 3333
         published: 3000
