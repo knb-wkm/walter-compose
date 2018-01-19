@@ -201,7 +201,7 @@ services:
       - ./elastic/config/elastic_01:/usr/share/elasticsearch/config
       - elastic_01_data:/usr/share/elasticsearch/data
       - elastic_01_logs:/usr/share/elasticsearch/logs
-    unlimits:
+    ulimits:
       memlock:
         soft: -1
         hard: -1
@@ -219,7 +219,7 @@ services:
       - ./elastic/config/elastic_02:/usr/share/elasticsearch/config
       - elastic_02_data:/usr/share/elasticsearch/data
       - elastic_02_logs:/usr/share/elasticsearch/logs
-    unlimits:
+    ulimits:
       memlock:
         soft: -1
         hard: -1
