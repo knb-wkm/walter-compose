@@ -109,6 +109,7 @@ services:
     volumes:
       - swift_01:/srv
       - ./swift/configs/swift_01:/etc/swift
+      - ./swift/ring-inits:/ring-inits
     ports:
       - target: 8080
         published: 8080
@@ -138,6 +139,7 @@ services:
     volumes:
       - swift_02:/srv
       - ./swift/configs/swift_02:/etc/swift
+      - ./swift/ring-inits:/ring-inits
     ports:
       - target: 8080
         published: 8080
@@ -167,6 +169,7 @@ services:
     volumes:
       - swift_03:/srv
       - ./swift/configs/swift_03:/etc/swift
+      - ./swift/ring-inits:/ring-inits
     ports:
       - target: 8080
         published: 8080
