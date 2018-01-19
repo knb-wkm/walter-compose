@@ -161,6 +161,35 @@ services:
         constraints:
           - node.labels.swift.node == 2
 
+  swift_03:
+    image: walter-swift
+    command: bash -c "chown -R swift:swift /srv && /usr/bin/supervisord -c /etc/swift/supervisord.conf && sleep 3 && tail -n 0 -f /var/log/syslog"
+    volumes:
+      - swift_03:/srv
+      - ./swift/configs/swift_03:/etc/swift
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+      - target: 6010
+        published: 6010
+        protocol: tcp
+        mode: host
+      - target: 6011
+        published: 6011
+        protocol: tcp
+        mode: host
+      - target: 6012
+        published: 6012
+        protocol: tcp
+        mode: host
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.swift.node == 3
+
   elastic_01:
     image: walter-elasticsearch:5.6
     environment:
@@ -248,6 +277,7 @@ volumes:
   mongos_2:
   swift_01:
   swift_02:
+  swift_03:
   elastic_01_data:
   elastic_01_logs:
   elastic_02_data:
