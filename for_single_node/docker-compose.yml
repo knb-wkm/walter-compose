@@ -1,0 +1,22 @@
+version "3"
+services:
+  mongo_01:
+    image: mongo:3.4.10
+    command: mongod --dbpath /data/db --port 27017
+
+  swift_01:
+    image: morrisjobke/docker-swift-onlyone
+
+  elastic_01:
+    image: walter-elastic
+
+  nodejs_01:
+    image: walter-nodejs
+    command: bash -c "cd /webapp/walter-02/server && npm start"
+    ports:
+      - 3000:3333
+    environment:
+      - NODE_ENV=production
+      - MONGO_HOST_NAME=192.168.56.13
+      - SWIFT_HOST_NAME=192.168.56.13
+      - ELASTIC_HOST_NAME=192.168.56.13
