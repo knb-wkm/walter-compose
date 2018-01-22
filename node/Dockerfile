@@ -15,8 +15,6 @@ RUN set -x \
       && apt-get install -y vim libreoffice-l10n-ja libreoffice imagemagick ghostscript
 
 
-COPY entrypoint.sh /entrypoint.sh
-
 EXPOSE 3333
 
-CMD ["/bin/bash /entrypoint.sh"]
+CMD ["node"]
