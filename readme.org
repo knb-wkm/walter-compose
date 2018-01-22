@@ -230,6 +230,7 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
 ** ring作成
 
 - docker01, 02, 03にて実行する
+  環境変数に注意する
 #+begin_src sh
 sudo docker exec -it -e docker01=192.168.56.10 -e docker02=192.168.56.11 -e docker03=192.168.56.12 \
 $(docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
@@ -252,13 +253,6 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
   swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing delete --all
 #+end_src
 
-* nodejs初期設定(deploy)
-- docker01, 02
-#+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
-    bash /scripts/deploy.sh
-#+end_src
-
 * elastic search初期設定
 #+begin_src sh
 sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01) \
@@ -266,6 +260,7 @@ sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=wa
 #+end_src
 
 * nginx構築、設定
+
 - add repository
 #+begin_src sh
 sudo su
@@ -281,42 +276,177 @@ EOF
 
 - install
 #+begin_src sh
-sudo yum install nginx
+sudo yum install -y nginx
 sudo systemctl enable nginx
 sudo systemctl start nginx
 #+end_src
 
-* 動作確認
-** mongo
-#+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongocfg_rs1_1) \
-  mongo --port 27017
+- /etc/nginx/nginx.conf
+#+begin_src conf
+user  nginx;
+worker_processes  1;
 
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongosrd_rs2_1) \
-  mongo --port 27017
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
 
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_mongos_1) \
-  mongo --port 27017
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    #include /etc/nginx/conf.d/*.conf;
+
+    upstream backend {
+        server 10.30.88.74:3000;
+        #server 10.30.88.75:3001 backup;
+    }
+
+    server {
+        listen 80;
+        server_name cloud-storage;
+        client_max_body_size 100m;
+
+        location /test {
+            proxy_pass http://backend;
+        }
+
+        location / {
+            proxy_pass http://backend;
+        }
+    }
+}
 #+end_src
 
-** swift
+* keepalived
+
+- install
 #+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_swift_01) \
-  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing stat walter
+sudo yum install -y keepalived
+sudo systemctl start keepalived
+sudo systemctl enable keepalived
 #+end_src
 
-** elastic
+- kernel setting
 #+begin_src sh
-sudo docker exec -it $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_elastic_01) \
-  curl -X get http://localhost:9200
+echo "net.ipv4.ip_nonlocal_bind = 1" >> /etc/sysctl.conf
 #+end_src
 
-** nodejs
-docker-composeのdepends_onがswarmでは無視されるのでdocker stopで凌ぐ...
+- keepalived.conf
+#+begin_src conf
+global_defs {
+  router_id walter_devel
+}
+
+vrrp_sync_group vg1 {
+  group {
+    external
+    internal
+  }
+}
+
+vrrp_script chk_proxy {
+  script "/usr/bin/systemctl status nginx.service"
+  interval 2
+  fail 3
+  rise 2
+}
+
+vrrp_instance external {
+  state BACKUP
+  interface enp0s8
+  virtual_router_id 50
+  priority 200
+  advert_int 1
+
+  authentication {
+    auth_type PASS
+    auth_pass password123
+  }
+
+  virtual_ipaddress {
+    192.168.56.20/24 brd 192.168.56.255 dev enp0s8
+  }
+
+  track_script {
+    chk_proxy
+  }
+
+  preempt_delay 300
+
+}
+
+vrrp_instance internal {
+  state BACKUP
+  interface enp0s9
+  virtual_router_id 2
+  priority 200
+  advert_int 1
+
+  authentication {
+    auth_type PASS
+    auth_pass password123
+  }
+
+  virtual_ipaddress {
+    192.168.57.20/24 brd 192.168.57.255 dev enp0s9
+  }
+
+  track_script {
+    chk_proxy
+  }
+
+  preempt_delay 300
+}
+#+end_src
 
 * メモ
-- overlay networkに使い捨てコンテナを接続しメンテしたいとき
+** overlay networkに使い捨てコンテナを接続しメンテしたいとき
 #+begin_src sh
 sudo docker run -it --rm --network=walter_overlay walter-ubuntu:16.04 /bin/bash
 #+end_src
 
+** nodejs deploy
+本番とは別のdocker環境で実行する
+  
+- image作成、save
+#+begin_src sh
+sudo docker run -it --name walter-node-tmp walter-node:6.12 bash
+cd /webapp/walter-02
+git pull origin develop
+cd server
+npm install
+npm run build
+cd ../client
+npm install
+npm run build
+exit
+
+docker commit walter-node-tmp walter-node:6.12
+docker save walter-node:6.12 > walter-node_6.12.tar
+docker stop walter-node-tmp
+docker rm walter-node-tmp
+#+end_src
+
+- image load
+  本番サーバ上で実行する
+
+#+begin_src sh
+docker load < walter-node_6.12.tar
+docker stop $(sudo docker ps -qf label=com.docker.swarm.service.name=walter_nodejs_01)
+#+end_src
