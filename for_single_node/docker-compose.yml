@@ -3,16 +3,23 @@ services:
   mongo_01:
     image: mongo:3.4.10
     command: mongod --dbpath /data/db --port 27017
+    ports:
+      - 27017:27017
 
   swift_01:
     image: morrisjobke/docker-swift-onlyone
+    ports:
+      - 8080:8080
 
   elastic_01:
     image: walter-elastic
+    ports:
+      - 9200:9200
+      - 9300:9300
 
   nodejs_01:
     image: walter-nodejs
-    command: bash -c "cd /webapp/walter-02/server && npm start"
+    command: bash -c "cd /webapp/walter-02/server/lib/configs && cp server.js.dist server.js && npm start"
     ports:
       - 3000:3333
     environment:
