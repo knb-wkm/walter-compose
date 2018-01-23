@@ -1,18 +1,20 @@
 <!-- TOC -->
 
-- [stats](#stats)
-- [serverStatus()](#serverstatus)
+- [mongostat](#mongostat)
 - [mongotop](#mongotop)
+- [serverStatus()](#serverstatus)
 - [profile](#profile)
 	- [profilingの有効化](#profilingの有効化)
 	- [profiling結果の取得](#profiling結果の取得)
 	- [profilingの無効化](#profilingの無効化)
 - [currentOp](#currentop)
 - [killOp](#killop)
+- [stats](#stats)
+- [statsAll](#statsall)
 
 <!-- /TOC -->
 
-# stats
+# mongostat
 mongostat から指定時間分のレスポンスを受け取ってjson形式で表示する。
 コンソールで表示するだけなら mongostat を実行する方が良い
 
@@ -28,16 +30,16 @@ node utilities/stats
 mongostat -h 192.168.99.100 -p 27017 -n 10 --discover
 ```
 
-# serverStatus()
-mongostatとかの参照先
-```
-mongo 192.168.99.100:27017/walter utilities/serverStatus.js
-```
-
 # mongotop
 mongotop はJSON形式で取得できる
 ```
 mongotop -h 192.168.99.100 -p 27017 -n 10 --json
+```
+
+# serverStatus()
+mongostatとかの参照先
+```
+mongo 192.168.99.100:27017/walter utilities/serverStatus.js
 ```
 
 # profile
@@ -72,4 +74,17 @@ mongo 192.168.99.100:27017/walter utilities/current0p.js
 
 ```
 node utilities/kill <opid>
+```
+
+# stats
+DBの統計情報を取得する
+```
+mongo 192.168.99.100:27017/walter utilities/stats.js
+```
+
+
+# statsAll
+すべてのコレクションの統計情報を取得する
+```
+mongo 192.168.99.100:27017/walter utilities/statsAll.js
 ```
