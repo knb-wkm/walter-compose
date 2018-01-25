@@ -20,6 +20,8 @@ services:
   nodejs_01:
     image: walter-nodejs
     command: bash -c "cd /webapp/walter-02/server/lib/configs && cp server.js.dist server.js && npm start"
+    volumes:
+      - /tmp:/host_tmp
     ports:
       - 3000:3333
     environment:
