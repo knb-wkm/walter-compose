@@ -12,7 +12,7 @@ RUN set -x \
       && npm install \
       && npm run build \
       && apt-get update \
-      && apt-get install -y vim libreoffice-l10n-ja libreoffice imagemagick ghostscript
+      && apt-get install -y vim libreoffice-l10n-ja libreoffice imagemagick ghostscript nkf
 
 
 EXPOSE 3333
