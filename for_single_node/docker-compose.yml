@@ -35,5 +35,6 @@ services:
       - MONGO_HOST_NAME=192.168.56.13
       - SWIFT_HOST_NAME=192.168.56.13
       - ELASTIC_HOST_NAME=192.168.56.13
+      - LANG=ja_JP.UTF-8
     volumes:
       - ./nodejs/tmp:/host_tmp
