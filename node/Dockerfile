@@ -4,7 +4,7 @@ RUN set -x \
     && apt-get update \
     && apt-get install -y locales language-pack-ja libreoffice-l10n-ja libreoffice imagemagick ghostscript nkf curl fonts-ipa* fonts-takao* \
     && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
-    && apt-get install -y nodejs build-essential git \
+    && apt-get install -y nodejs build-essential git vim \
     && mkdir /webapp \
     && cd /webapp \
     && git clone https://github.com/knb-wkm/walter-02.git \
