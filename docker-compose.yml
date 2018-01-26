@@ -236,6 +236,7 @@ services:
       - MONGO_HOST_NAME=mongos_1
       - SWIFT_HOST_NAME=swift_01
       - ELASTIC_HOST_NAME=elastic_01
+      - LANG=ja_JP.UTF-8
     deploy:
       replicas: 1
       placement:
@@ -257,6 +258,7 @@ services:
       - MONGO_HOST_NAME=mongos_2
       - SWIFT_HOST_NAME=swift_02
       - ELASTIC_HOST_NAME=elastic_02
+      - LANG=ja_JP.UTF-8
     deploy:
       replicas: 1
       placement:
