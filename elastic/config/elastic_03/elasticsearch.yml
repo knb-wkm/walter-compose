@@ -56,6 +56,7 @@ path.logs: /usr/share/elasticsearch/logs
 # Set the bind address to a specific IP (IPv4 or IPv6):
 #
 network.host: 0.0.0.0
+network.publish_host: _eth0:ipv4_
 #
 # Set a custom port for HTTP:
 #
@@ -69,8 +70,7 @@ network.host: 0.0.0.0
 # The default list of hosts is ["127.0.0.1", "[::1]"]
 #
 #discovery.zen.ping.unicast.hosts: ["192.168.56.10", "192.168.56.11", "192.168.56.12"]
-#discovery.zen.ping.unicast.hosts: ["elastic_01", "elastic_02", "elastic_03"]
-discovery.zen.ping.unicast.hosts: ["10.30.88.74", "10.30.88.75", "10.30.88.76"]
+discovery.zen.ping.unicast.hosts: ["elastic_01", "elastic_02", "elastic_03"]
 #
 # Prevent the "split brain" by configuring the majority of nodes (total number of master-eligible nodes / 2 + 1):
 #
