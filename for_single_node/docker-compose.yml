@@ -5,17 +5,23 @@ services:
     command: mongod --dbpath /data/db --port 27017
     ports:
       - 27017:27017
+    volumes:
+      - ./mongo/tmp:/host_tmp
 
   swift_01:
     image: morrisjobke/docker-swift-onlyone
     ports:
       - 8080:8080
+    volumes:
+      - ./swift/tmp:/host_tmp
 
   elastic_01:
     image: walter-elastic
     ports:
       - 9200:9200
       - 9300:9300
+    volumes:
+      - ./elastic/tmp:/host_tmp
 
   nodejs_01:
     image: walter-nodejs
@@ -29,3 +35,5 @@ services:
       - MONGO_HOST_NAME=192.168.56.13
       - SWIFT_HOST_NAME=192.168.56.13
       - ELASTIC_HOST_NAME=192.168.56.13
+    volumes:
+      - ./nodejs/tmp:/host_tmp
