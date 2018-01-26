@@ -221,6 +221,20 @@ services:
         constraints:
           - node.labels.elastic.node == 2
 
+  elastic_03:
+    image: walter-elasticsearch:5.6
+    environment:
+      NODE_NAME: "elastic_03"
+    volumes:
+      - ./elastic/config/elastic_03:/usr/share/elasticsearch/config
+      - elastic_03_data:/usr/share/elasticsearch/data
+      - elastic_03_logs:/usr/share/elasticsearch/logs
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.elastic.node == 3
+
   nodejs_01:
     image: walter-node:6.12
     command: bash -c "cd /webapp/walter-02/server && npm start"
@@ -287,6 +301,8 @@ volumes:
   elastic_01_logs:
   elastic_02_data:
   elastic_02_logs:
+  elastic_03_data:
+  elastic_03_logs:
   nodejs_01_logs:
   nodejs_02_logs:
 
