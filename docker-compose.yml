@@ -85,6 +85,11 @@ services:
       - mongos_1:/data/db
       - ./mongo/rs_inits:/rs_inits
       - ./walter-02:/webapp
+    ports:
+      - target: 27017
+        published: 27017
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 1
       placement:
@@ -97,6 +102,11 @@ services:
     volumes:
       - mongos_2:/data/db
       - ./mongo/rs_inits:/rs_inits
+    ports:
+      - target: 27017
+        published: 27017
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 1
       placement:
@@ -201,6 +211,15 @@ services:
       - ./elastic/config/elastic_01:/usr/share/elasticsearch/config
       - elastic_01_data:/usr/share/elasticsearch/data
       - elastic_01_logs:/usr/share/elasticsearch/logs
+    ports:
+      - target: 9200
+        published: 9200
+        protocol: tcp
+        mode: host
+      - target: 9300
+        published: 9300
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 1
       placement:
@@ -215,6 +234,15 @@ services:
       - ./elastic/config/elastic_02:/usr/share/elasticsearch/config
       - elastic_02_data:/usr/share/elasticsearch/data
       - elastic_02_logs:/usr/share/elasticsearch/logs
+    ports:
+      - target: 9200
+        published: 9200
+        protocol: tcp
+        mode: host
+      - target: 9300
+        published: 9300
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 1
       placement:
@@ -229,6 +257,15 @@ services:
       - ./elastic/config/elastic_03:/usr/share/elasticsearch/config
       - elastic_03_data:/usr/share/elasticsearch/data
       - elastic_03_logs:/usr/share/elasticsearch/logs
+    ports:
+      - target: 9200
+        published: 9200
+        protocol: tcp
+        mode: host
+      - target: 9300
+        published: 9300
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 1
       placement:
