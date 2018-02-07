@@ -274,7 +274,7 @@ services:
 
   nodejs_01:
     image: walter-node:6.12
-    command: bash -c "cd /webapp/walter-02/server && npm serve"
+    command: bash -c "cd /webapp/walter-02/server && npm run serve"
     volumes:
       - nodejs_01_logs:/webapp/walter-02/server/logs
     ports:
@@ -296,7 +296,7 @@ services:
 
   nodejs_02:
     image: walter-node:6.12
-    command: bash -c "cd /webapp/walter-02/server && npm serve"
+    command: bash -c "cd /webapp/walter-02/server && npm run serve"
     volumes:
       - nodejs_02_logs:/webapp/walter-02/server/logs
     ports:
